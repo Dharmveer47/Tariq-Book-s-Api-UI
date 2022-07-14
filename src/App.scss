@@ -1,0 +1,27 @@
+.App {
+  text-align: center;
+  margin: 16px;
+  border: 1px solid #fff;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // width: 100px;
+  // height: 100px;
+}
+#blueLine {
+  stroke-dasharray: 575px;
+  // stroke-dashoffset: 575px;
+  animation: circleAni 5s ease-in-out forwards;
+}
+@keyframes circleAni {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dashoffset: 400px;
+  }
+  100% {
+    stroke-dashoffset: 0px;
+  }
+}
