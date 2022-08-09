@@ -5,7 +5,7 @@ import { Heading, Form } from "./Login";
 // import { BookContext } from "../App";
 export default function Signup() {
   // const { dispatch } = useContext(BookContext);
-
+  const [loading, setLoading] = React.useState(false);
   const nameRef = useRef();
   const emailRef = useRef();
   const passRef = useRef();
@@ -15,7 +15,9 @@ export default function Signup() {
   const singUpUrl = `https://api-book-directory.herokuapp.com/auth/signup`;
 
   const handleSumbit = (e) => {
+    
     e.preventDefault();
+    setLoading(true);
     const name = nameRef.current.value;
     const email = emailRef.current.value;
     const password = passRef.current.value;
@@ -24,6 +26,11 @@ export default function Signup() {
       email,
       password,
     };
+    if (body.name === "" || body.email === "" || body.password === "") {
+      alert("Please fill all fields");
+      setLoading(false);
+      return;
+    }
 
     fetch(singUpUrl, {
       method: "POST",
@@ -33,9 +40,16 @@ export default function Signup() {
       body: JSON.stringify(body),
     })
       .then((res) => {
-        if (res.status === 201) {
+        if (res.status === 400) {
+          alert("Invalid email or password");
+          setLoading(false);
+          return;
+        }
+        else if (res.status === 201) {
+          setLoading(false);
           navigate("/");
         } else {
+          setLoading(false);
           alert("Something went wrong");
         }
       })
@@ -51,7 +65,7 @@ export default function Signup() {
         <input ref={nameRef} type="name" placeholder="name" />
         <input ref={emailRef} type="email" placeholder="email" />
         <input ref={passRef} type="text" placeholder="Password" />
-        <button>Signup</button>
+        <button > { loading ? "Loading..." : "Signup"} </button>
       </Form>
       <p style={{ cursor: "pointer" }} onClick={() => navigate("/")}>
         Login
