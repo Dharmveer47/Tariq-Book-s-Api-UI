@@ -1,11 +1,16 @@
 import React, { useRef, useContext, useState } from "react";
+import { ACTION } from "../App";
+import { useNavigate } from "react-router-dom";
+import { LOCALSTORAGE } from "./Login";
+
 import { BookContext } from "../App";
 
 export default function Createbook() {
-  const { state } = useContext(BookContext);
+  const { state, dispatch } = useContext(BookContext);
   const [loading, setLoading] = useState(false);
   const titleRef = useRef();
   const authername = useRef();
+  const navigate = useNavigate();
   const CreateUrl = `https://api-book-directory.herokuapp.com/books/create`;
   const handleSumbit = async (e)  => {
     setLoading(true);
@@ -32,6 +37,16 @@ export default function Createbook() {
       alert("Book created successfully");
     } else {
       setLoading(false);
+      console.log(data);
+      if(data.message === "Unauthorized. You need to sign in to get the token."){
+        alert("You need to sign in to create a book");
+        dispatch({
+          type: ACTION.LOGIN,
+          payload: false,
+        });
+        localStorage.clear(LOCALSTORAGE.NAME);
+        navigate("/");
+      }
       alert(data.message);
       return {};
     }

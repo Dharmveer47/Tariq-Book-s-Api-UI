@@ -28,7 +28,8 @@ export default function PublicBook() {
   return (
     <div style={{
       display: "flex",
-      flexWrap: "wrap"
+      flexWrap: "wrap",
+      cursor: "pointer",
     }}>
         <h5>Public's Books</h5>
       {data.map((book) => {

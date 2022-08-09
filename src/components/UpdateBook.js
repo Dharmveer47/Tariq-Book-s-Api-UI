@@ -11,12 +11,18 @@ export default function UpdateBook({ id, setData }) {
   const authorRef = useRef();
 
   const handleSumbit = async (e) => {
-    setLoading(true);
     e.preventDefault();
+    setLoading(true);
+
     const body = {
       title: titleRef.current.value,
       author: authorRef.current.value,
     };
+    if (body.title === "" || body.author === "") {
+      alert("Please fill all fields");
+      setLoading(false);
+      return;
+    }
     const response = await fetch(url, {
       method: "PUT",
       headers: {
@@ -25,6 +31,11 @@ export default function UpdateBook({ id, setData }) {
       },
       body: JSON.stringify(body),
     });
+    if (response.status === 400) {
+      alert("Invalid email or password");
+      setLoading(false);
+      return;
+    }
     const data = await response.json();
     if (response.status === 200) {
       setLoading(false);
@@ -37,6 +48,7 @@ export default function UpdateBook({ id, setData }) {
     }
   };
   const delteUrl = `https://api-book-directory.herokuapp.com/books/delete/${id}`;
+
   const handleDelete = async () => {
     const response = await fetch(delteUrl, {
       method: "DELETE",

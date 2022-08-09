@@ -67,38 +67,7 @@ export default function Login() {
     }
   };
 
-  //     .then((res) => {
-  //       return res.json();
-  //     })
-  //     .then((data) => {
-  //       if (data.message === "Auth Succesful") {
-  //         setLoading(false);
-  //         const userCrdentials = {
-  //           name: data.name,
-  //           _id: data._id,
-  //           token: data.token,
-  //         };
-  //         dispatch({
-  //           type: ACTION.LOGIN,
-  //           payload: true,
-  //         });
-  //         dispatch({
-  //           type: ACTION.USERCREDENTIALS,
-  //           payload: userCrdentials,
-  //         });
-  //         localStorage.setItem(
-  //           LOCALSTORAGE.NAME,
-  //           JSON.stringify(userCrdentials)
-  //         );
-  //         navigate("/");
-  //       } else {
-  //         alert(data.message);
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // };
+
   return (
     <>
       <Form onSubmit={handleSumbit}>
