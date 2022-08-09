@@ -1,76 +1,116 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { ACTION } from "../App";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { BookContext } from "../App";
+
+export const LOCALSTORAGE = {
+  NAME: "tariquser",
+};
+
 export default function Login() {
   const { dispatch } = useContext(BookContext);
-
+  const [loading, setLoading] = useState(false);
   const singUpUrl = `https://api-book-directory.herokuapp.com/auth/login`;
 
   const emailRef = useRef();
   const passRef = useRef();
   const navigate = useNavigate();
 
-  const handleSumbit = (e) => {
-    e.preventDefault();
+  const handleSumbit = async (e) => {
     const email = emailRef.current.value;
     const password = passRef.current.value;
     const body = {
       email,
       password,
     };
-
-    fetch(singUpUrl, {
+    e.preventDefault();
+    setLoading(true);
+    if (body.email === "" || body.password === "") {
+      alert("Please fill all fields");
+      setLoading(false);
+      return;
+    }
+    const response = await fetch(singUpUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        if (data.message === "Auth Succesful") {
-          const userCrdentials = {
-            name: data.name,
-            _id: data._id,
-            token: data.token,
-          };
-          dispatch({
-            type: ACTION.LOGIN,
-            payload: true,
-          });
-          dispatch({
-            type: ACTION.USERCREDENTIALS,
-            payload: userCrdentials,
-          });
-          localStorage.setItem("user", JSON.stringify(userCrdentials));
-          navigate("/");
-        } else {
-          alert("Something went wrong");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
+    });
+    if (response.status === 400) {
+      alert("Invalid email or password");
+      setLoading(false);
+      return;
+    }
+    const data = await response.json();
+    if (response.status === 200) {
+      setLoading(false);
+      const userCrdentials = {
+        name: data.name,
+        _id: data._id,
+        token: data.token,
+      };
+      localStorage.setItem(LOCALSTORAGE.NAME, JSON.stringify(userCrdentials));
+      dispatch({
+        type: ACTION.USERCREDENTIALS,
+        payload: userCrdentials,
       });
+      dispatch({
+        type: ACTION.LOGIN,
+        payload: data,
+      });
+      navigate("/");
+    } else {
+      setLoading(false);
+      alert(data.message);
+    }
   };
 
+  //     .then((res) => {
+  //       return res.json();
+  //     })
+  //     .then((data) => {
+  //       if (data.message === "Auth Succesful") {
+  //         setLoading(false);
+  //         const userCrdentials = {
+  //           name: data.name,
+  //           _id: data._id,
+  //           token: data.token,
+  //         };
+  //         dispatch({
+  //           type: ACTION.LOGIN,
+  //           payload: true,
+  //         });
+  //         dispatch({
+  //           type: ACTION.USERCREDENTIALS,
+  //           payload: userCrdentials,
+  //         });
+  //         localStorage.setItem(
+  //           LOCALSTORAGE.NAME,
+  //           JSON.stringify(userCrdentials)
+  //         );
+  //         navigate("/");
+  //       } else {
+  //         alert(data.message);
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
   return (
-    <Form onSubmit={handleSumbit}>
-      <Heading>Login</Heading>
-      <input ref={emailRef} type="text" placeholder="Userid" />
-      <input ref={passRef} type="text" placeholder="Password" />
-      <button>Login</button>
-      <p
-        onClick={() => {
-          navigate("/signup");
-        }}
-      >
+    <>
+      <Form onSubmit={handleSumbit}>
+        <Heading>Login</Heading>
+        <input ref={emailRef} type="email" placeholder="Email" />
+        <input ref={passRef} type="text" placeholder="Password" />
+        <button type="sumbit">{loading ? "Loading" : "Login"}</button>
+      </Form>
+      <p style={{ cursor: "pointer" }} onClick={() => navigate("/signup")}>
         Signup
       </p>
-    </Form>
+    </>
   );
 }
 

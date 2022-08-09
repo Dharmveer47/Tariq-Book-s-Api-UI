@@ -1,8 +1,10 @@
 import React, { createContext, useReducer } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import GetBook from "./components/GetBook";
+import SingleBook from "./components/SingleBook";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
+import { LOCALSTORAGE } from "./components/Login";
 import "./App.scss";
 export const BookContext = createContext();
 
@@ -19,33 +21,50 @@ const reducer = (state, action) => {
     case ACTION.LOGIN:
       return { ...state, login: action.payload };
     case ACTION.USERCREDENTIALS:
-      return { ...state, userCredentials: action.payload };  
+      return { ...state, userCredentials: action.payload };
     default:
       return state;
   }
 };
 
+const GetLocaldata = () => {
+  const getLocal = localStorage.getItem(LOCALSTORAGE.NAME)?.charAt(0);
+  if (!getLocal || getLocal !== "{") {
+    return { login: false, tariquser: false };
+  } else {
+    const getLocalforAuth = localStorage.getItem(LOCALSTORAGE.NAME);
+    const tariquser = JSON.parse(getLocalforAuth);
+    if (tariquser) {
+      return { login: true, tariquser };
+    }
+  }
+  return { login: false, tariquser: false };
+};
+
 const initialState = {
   books: [],
-  login: false,
-  userCredentials: {},
+  login: GetLocaldata()?.login,
+  userCredentials: GetLocaldata()?.tariquser,
 };
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   console.log(state);
-
   return (
     <div className="app">
       <BookContext.Provider value={{ state, dispatch }}>
         <BrowserRouter>
           <Routes>
             {state.login ? (
-              <Route path="/" element={<GetBook />} />
+              <>
+                <Route path="/" element={<GetBook />} />
+                <Route path="/book/:id" element={<SingleBook />} />
+                <Route path="*" element={<GetBook />} />
+              </>
             ) : (
               <>
-              <Route path="/" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
+                <Route path="/" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
               </>
             )}
           </Routes>
